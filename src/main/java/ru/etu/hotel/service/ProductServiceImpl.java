@@ -62,7 +62,7 @@ public class ProductServiceImpl implements ProductService {
     @Override
     @Transactional(readOnly = true)
     public ProductListResponse getProducts(Integer classId, Integer limit, Integer offset) {
-        if (limit == null) limit = 10;
+        if (limit == null) limit = 10;//Если клиент не передал
         if (offset == null) offset = 0;
 
         List<Object[]> results = productRepository.findProducts(classId, limit, offset);
@@ -70,6 +70,7 @@ public class ProductServiceImpl implements ProductService {
         List<ProductResponse> items = new ArrayList<>();
         Long total = 0L;
 
+        //Преобразование результатов
         for (Object[] row : results) {
             total = row[4] != null ? ((Number) row[4]).longValue() : 0L;
             ProductResponse response = ProductResponse.builder()
@@ -86,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
                 .limit(limit)
                 .offset(offset)
                 .items(items)
-                .build();
+                .build();//Создаём и возвращаем DTO с пагинацией
     }
 
     private Integer toInt(Object obj) {

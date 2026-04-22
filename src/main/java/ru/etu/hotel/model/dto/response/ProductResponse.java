@@ -1,3 +1,4 @@
+//ответ с данными продукта
 package ru.etu.hotel.model.dto.response;
 
 import lombok.AllArgsConstructor;

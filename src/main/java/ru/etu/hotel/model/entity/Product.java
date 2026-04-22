@@ -24,6 +24,7 @@ public class Product {
     @Column(name = "short_name", length = 128, nullable = false)
     private String shortName;
 
+//связывает продукт с classification_element
     @Column(name = "class_id")
     private Integer classId;
 }

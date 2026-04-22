@@ -1,3 +1,4 @@
+//интерфейс
 package ru.etu.hotel.service;
 
 import ru.etu.hotel.model.dto.request.ClassificationElementRequest;

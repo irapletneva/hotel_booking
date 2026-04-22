@@ -8,6 +8,7 @@ import ru.etu.hotel.model.entity.Product;
 
 import java.util.List;
 
+//репозиторий для Product
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Integer> {
 
@@ -22,12 +23,17 @@ public interface ProductRepository extends JpaRepository<Product, Integer> {
     @Query(value = "SELECT swap_product_class(:productId, :newClassId)", nativeQuery = true)
     Boolean swapProductClass(@Param("productId") Integer productId,
                              @Param("newClassId") Integer newClassId);
-
+    
+    //обновление названия продукта
     @Query(value = "SELECT update_product(:productId, :name, :shortName)", nativeQuery = true)
     Boolean updateProduct(@Param("productId") Integer productId,
                           @Param("name") String name,
                           @Param("shortName") String shortName);
-
+                          
+    //поиск продуктов с пагинацией:
+    // classId - фильтр по классификации(null = все продукты)
+    //limit -сколько записей вернуть
+    //offset - сколько пропустить (для пагинации)
     @Query(value = "SELECT * FROM find_products(:classId, :limit, :offset)", nativeQuery = true)
     List<Object[]> findProducts(@Param("classId") Integer classId,
                                 @Param("limit") Integer limit,

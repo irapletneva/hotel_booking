@@ -29,6 +29,17 @@ services:
       - hotel_network
     depends_on:
       - postgres
+  
+  adminer:
+    image: adminer
+    restart: always
+    container_name: hotel_adminer
+    ports:
+      - 8085:8080
+    networks:
+      - hotel_network
+    depends_on:
+      - postgres
 
 volumes:
   hotel_pgdata:

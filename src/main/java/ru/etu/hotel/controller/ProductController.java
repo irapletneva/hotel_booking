@@ -40,15 +40,16 @@ public class ProductController {
         ProductListResponse response = productService.getProducts(classId, limit, offset);
         log.info("Products list provided");
         return ResponseEntity.ok(response);
-    }
+    }///product?limit=10&offset=0
 
+    //Смена классификации
     @PutMapping("/{id}/swap")
     public ResponseEntity<Map<String, String>> updateProductClass(
             @PathVariable("id") Integer id,
             @RequestParam("new") Integer newClassId) {
         productService.updateClassId(id, newClassId);
         return ResponseEntity.ok(Map.of("message", "class updated"));
-    }
+    }// /product/5/swap?new=8
 
     @PutMapping("/{id}")
     public ResponseEntity<Map<String, String>> updateProduct(
