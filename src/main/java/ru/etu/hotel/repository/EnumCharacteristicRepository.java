@@ -14,10 +14,17 @@ import java.util.Optional;
 @Repository
 public interface EnumCharacteristicRepository extends JpaRepository<EnumCharacteristic, Integer> {
     
-    List<EnumCharacteristic> findByClassIdOrderBySortOrderAsc(Integer classId);
+    // GET методы через JPQL
+    @Query("SELECT e FROM EnumCharacteristic e ORDER BY e.classId, e.sortOrder")
+    List<EnumCharacteristic> findAllCharacteristics();
     
-    Optional<EnumCharacteristic> findByClassIdAndCharacteristicName(Integer classId, String characteristicName);
+    @Query("SELECT e FROM EnumCharacteristic e WHERE e.classId = :classId ORDER BY e.sortOrder")
+    List<EnumCharacteristic> findCharacteristicsByClass(@Param("classId") Integer classId);
     
+    @Query("SELECT e FROM EnumCharacteristic e WHERE e.classId = :classId AND e.characteristicName = :name")
+    Optional<EnumCharacteristic> findCharacteristicByClassAndName(@Param("classId") Integer classId, @Param("name") String name);
+    
+    // Старые методы для совместимости (если используются)
     @Query(value = "SELECT * FROM get_class_characteristics(:classId)", nativeQuery = true)
     List<Object[]> getClassCharacteristicsNative(@Param("classId") Integer classId);
     
@@ -27,24 +34,35 @@ public interface EnumCharacteristicRepository extends JpaRepository<EnumCharacte
     @Query(value = "SELECT * FROM get_characteristic_value(:classId, :name)", nativeQuery = true)
     List<Object[]> getCharacteristicValueNative(@Param("classId") Integer classId, @Param("name") String name);
     
+    @Query("SELECT MAX(e.sortOrder) FROM EnumCharacteristic e WHERE e.classId = :classId")
+    Integer findMaxSortOrderByClassId(@Param("classId") Integer classId);
+    
+    // PUT, DELETE, REORDER через JPQL
     @Modifying
     @Transactional
-    @Query(value = "SELECT reorder_enum_value(:valueId, :newOrder)", nativeQuery = true)
-    Boolean reorderEnumValue(@Param("valueId") Integer valueId, @Param("newOrder") Integer newOrder);
+    @Query("UPDATE EnumCharacteristic e SET e.sortOrder = :newOrder WHERE e.id = :id")
+    void reorderEnumValue(@Param("id") Integer id, @Param("newOrder") Integer newOrder);
     
     @Modifying
     @Transactional
-    @Query(value = "SELECT update_characteristic_value(:id, :name, :valueNumber, :valueString, :valueImage, :unit, :sortOrder)", nativeQuery = true)
-    Boolean updateCharacteristicValue(@Param("id") Integer id,
-                                       @Param("name") String name,
-                                       @Param("valueNumber") BigDecimal valueNumber,
-                                       @Param("valueString") String valueString,
-                                       @Param("valueImage") String valueImage,
-                                       @Param("unit") String unit,
-                                       @Param("sortOrder") Integer sortOrder);
+    @Query("UPDATE EnumCharacteristic e SET " +
+           "e.characteristicName = COALESCE(:name, e.characteristicName), " +
+           "e.valueNumber = COALESCE(:valueNumber, e.valueNumber), " +
+           "e.valueString = COALESCE(:valueString, e.valueString), " +
+           "e.valueImage = COALESCE(:valueImage, e.valueImage), " +
+           "e.unitOfMeasure = COALESCE(:unit, e.unitOfMeasure), " +
+           "e.sortOrder = COALESCE(:sortOrder, e.sortOrder) " +
+           "WHERE e.id = :id")
+    int updateCharacteristicValue(@Param("id") Integer id,
+                                  @Param("name") String name,
+                                  @Param("valueNumber") BigDecimal valueNumber,
+                                  @Param("valueString") String valueString,
+                                  @Param("valueImage") String valueImage,
+                                  @Param("unit") String unit,
+                                  @Param("sortOrder") Integer sortOrder);
     
     @Modifying
     @Transactional
-    @Query(value = "SELECT delete_characteristic(:id)", nativeQuery = true)
-    Boolean deleteCharacteristicById(@Param("id") Integer id);
+    @Query("DELETE FROM EnumCharacteristic e WHERE e.id = :id")
+    int deleteCharacteristicById(@Param("id") Integer id);
 }

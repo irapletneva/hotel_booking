@@ -1,4 +1,5 @@
 spring:
+  
   application:
     name: hotel-classification
 
@@ -19,3 +20,9 @@ spring:
 
 server:
   port: 8080
+
+logging:
+  level:
+    ru.etu.hotel: DEBUG
+    org.springframework.web: DEBUG
+    org.hibernate: DEBUG
