@@ -11,6 +11,7 @@ import ru.etu.hotel.model.dto.response.CharacteristicValueResponse;
 import ru.etu.hotel.model.entity.EnumCharacteristic;
 import ru.etu.hotel.repository.EnumCharacteristicRepository;
 import jakarta.persistence.EntityNotFoundException;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -63,8 +64,9 @@ public class EnumCharacteristicServiceImpl implements EnumCharacteristicService 
             throw new EntityNotFoundException("Characteristic not found: " + name + " for class " + classId);
         }
         Object[] row = results.get(0);
+        BigDecimal valueNumber = row[0] != null ? new BigDecimal(row[0].toString()) : null;
         return CharacteristicValueResponse.builder()
-                .valueNumber(row[0] != null ? new BigDecimal(row[0].toString()) : null)
+                .valueNumber(valueNumber)
                 .valueString((String) row[1])
                 .valueImage((String) row[2])
                 .unitOfMeasure((String) row[3])
@@ -109,11 +111,20 @@ public class EnumCharacteristicServiceImpl implements EnumCharacteristicService 
     private List<CharacteristicResponse> mapToResponseList(List<Object[]> results) {
         List<CharacteristicResponse> responses = new ArrayList<>();
         for (Object[] row : results) {
+            BigDecimal valueNumber = null;
+            if (row[3] != null) {
+                try {
+                    valueNumber = new BigDecimal(row[3].toString());
+                } catch (NumberFormatException e) {
+                    valueNumber = null;
+                }
+            }
+            
             responses.add(CharacteristicResponse.builder()
                     .id(((Number) row[0]).intValue())
                     .characteristicName((String) row[1])
                     .classId(row[2] != null ? ((Number) row[2]).intValue() : null)
-                    .valueNumber(row[3] != null ? new BigDecimal(row[3].toString()) : null)
+                    .valueNumber(valueNumber)
                     .valueString((String) row[4])
                     .valueImage((String) row[5])
                     .unitOfMeasure((String) row[6])
